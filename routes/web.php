@@ -1,22 +1,22 @@
 <?php
 
+use App\Http\Controllers\PengajuanController;
+use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
+// Route publik
+Route::get('/', [PengajuanController::class, 'create'])->name('pengajuan.form');
+Route::post('/pengajuan', [PengajuanController::class, 'store'])->name('pengajuan.store');
+Route::get('/cek-status', [PengajuanController::class, 'cekStatusForm'])->name('pengajuan.cek-status');
+Route::post('/cek-status', [PengajuanController::class, 'cekStatus'])->name('pengajuan.cek-status.proses');
 
-Route::get('/', function () {
-    return view('pengajuan');
-});
+// Route admin (dilindungi middleware 'admin')
+Route::prefix('admin')->group(function () {
+    Route::get('/login', [AdminController::class, 'loginForm'])->name('admin.login');
+    Route::post('/login', [AdminController::class, 'login']);
+    Route::post('/logout', [AdminController::class, 'logout'])->name('admin.logout');
 
+<<<<<<< HEAD
 use App\Http\Controllers\AdminController;
 
 Route::get('/admin', [AdminController::class, 'index']);
@@ -38,3 +38,10 @@ Route::get('/cek-status', function () {
 
 Route::get('/admin/download/{file}', [AdminController::class, 'download'])
     ->middleware('admin');
+=======
+    Route::middleware('admin')->group(function () {
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+        Route::patch('/pengajuan/{pengajuan}/status', [AdminController::class, 'updateStatus'])->name('admin.update-status');
+    });
+});
+>>>>>>> af9bbc9e36b2eae0fc97d1836c4959577fd3144b

@@ -2,148 +2,67 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pengajuan;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class PengajuanController extends Controller
 {
+    // Menampilkan form pengajuan
+    public function create()
+    {
+        return view('pengajuan.form');
+    }
+
+    // Menyimpan pengajuan baru
     public function store(Request $request)
     {
-        try {
-            // Upload file
-            $ktpPath = $request->file('ktp')->store('ktp', 'public');
-            $kkPath = $request->file('kk')->store('kk', 'public');
-
-            // Simpan ke database
-            $id = DB::table('pengajuan')->insertGetId([
-                'nama' => $request->nama,
-                'no_hp' => $request->no_hp,
-                'jenis_surat' => $request->jenis_surat,
-                'keperluan' => $request->keperluan,
-                'ktp' => $ktpPath,
-                'kk' => $kkPath,
-                'status' => 'Menunggu'
-            ]);
-
-            // Nomor pengajuan
-            $kode = 'SR-' . str_pad($id, 5, '0', STR_PAD_LEFT);
-
-            return redirect('/pengajuan')->with([
-                'sukses' => 'Pengajuan berhasil dikirim!',
-                'nomor_pengajuan' => $kode
-            ]);
-
-        } catch (\Exception $e) {
-            return redirect('/pengajuan')->with('error', 'Terjadi kesalahan!');
-        }
-    }
-}
-
-class CekStatusController extends Controller
-{
-    public function cek(Request $request)
-    {
-        $id = $request->no_pengajuan;
-
-        $data = DB::table('pengajuan')->where('id', $id)->first();
-
-        if (!$data) {
-            return redirect('/cek-status')->with('error', 'Nomor pengajuan tidak ditemukan.');
-        }
-
-        return view('cek-status', compact('data'));
-    }
-}
-
-class PengajuanController extends Controller
-{
-    public function store(Request $request)
-    {
-        // ✅ VALIDASI (pengganti manual validation)
-        $request->validate([
-            'nama' => 'required|string|max:100',
-            'no_hp' => 'required|numeric',
-            'jenis_surat' => 'required',
-            'keperluan' => 'required',
-            'ktp' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'kk' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+        $validated = $request->validate([
+            'nama'      => 'required|string|max:255',
+            'no_hp'     => 'required|string|max:20',
+            'alamat'    => 'required|string',
+            'jenis_surat' => 'required|in:Domisili,Usaha,Tidak Mampu,Keterangan Lain',
+            'keperluan' => 'required|string',
+            'ktp'       => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'kk'        => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
-        try {
-            // ✅ Upload file (pengganti uploadFile())
-            $ktpPath = $request->file('ktp')->store('uploads/ktp', 'public');
-            $kkPath  = $request->file('kk')->store('uploads/kk', 'public');
+        // Simpan file
+        $fileKtp = $request->file('ktp')->store('ktp', 'public');
+        $fileKk  = $request->file('kk')->store('kk', 'public');
 
-            // Ambil hanya nama file (opsional, biar mirip versi kamu)
-            $ktpName = basename($ktpPath);
-            $kkName  = basename($kkPath);
+        // Generate nomor unik
+        $nomor = 'SRT-' . now()->format('YmdHis') . '-' . Str::random(4);
 
-            // ✅ Simpan ke database
-            $id = DB::table('pengajuan')->insertGetId([
-                'nama' => $request->nama,
-                'no_hp' => $request->no_hp,
-                'jenis_surat' => $request->jenis_surat,
-                'keperluan' => $request->keperluan,
-                'ktp' => $ktpName,
-                'kk' => $kkName,
-                'status' => 'Menunggu',
-                'tanggal' => now()
-            ]);
+        $pengajuan = Pengajuan::create([
+            'nomor_pengajuan' => $nomor,
+            'nama'            => $validated['nama'],
+            'no_hp'           => $validated['no_hp'],
+            'alamat'          => $validated['alamat'],
+            'jenis_surat'     => $validated['jenis_surat'],
+            'keperluan'       => $validated['keperluan'],
+            'file_ktp'        => $fileKtp,
+            'file_kk'         => $fileKk,
+            'status'          => 'Pending',
+        ]);
 
-            // ✅ Generate nomor pengajuan
-            $kode = 'SR-' . str_pad($id, 5, '0', STR_PAD_LEFT);
-
-            return redirect('/pengajuan')->with([
-                'sukses' => 'Pengajuan berhasil dikirim!',
-                'nomor_pengajuan' => $kode
-            ]);
-
-        } catch (\Exception $e) {
-            return redirect('/pengajuan')->with('error', 'Terjadi kesalahan!');
-        }
-    }
-}
-
-class AdminController extends Controller
-{
-    public function index()
-    {
-        // Ambil data terbaru
-        $data = DB::table('pengajuan')
-                    ->orderBy('tanggal', 'desc')
-                    ->get();
-
-        return view('admin.index', compact('data'));
-    }
-}
-
-class AuthController extends Controller
-{
-    public function showLogin()
-    {
-        return view('admin.login');
+        return redirect()->route('pengajuan.form')->with('success', "Pengajuan berhasil!<br>Nomor Pengajuan: <strong>{$pengajuan->nomor_pengajuan}</strong><br>Simpan nomor ini untuk cek status.");
     }
 
-    public function login(Request $request)
+    // Form cek status
+    public function cekStatusForm()
     {
-        $username = $request->username;
-        $password = $request->password;
-
-        // login sederhana (hardcode)
-        if ($username === 'admin' && $password === 'admin123') {
-
-            // simpan session Laravel
-            session(['admin' => true]);
-
-            return redirect('/admin');
-        }
-
-        return redirect('/admin/login')->with('error', 'Username atau password salah!');
+        return view('pengajuan.cek-status');
     }
 
-    public function logout()
+    // Proses cek status
+    public function cekStatus(Request $request)
     {
-        session()->forget('admin');
-        return redirect('/admin/login');
+        $request->validate([
+            'nomor_pengajuan' => 'required|string|exists:pengajuans,nomor_pengajuan'
+        ]);
+
+        $pengajuan = Pengajuan::where('nomor_pengajuan', $request->nomor_pengajuan)->firstOrFail();
+        return view('pengajuan.hasil-status', compact('pengajuan'));
     }
 }
