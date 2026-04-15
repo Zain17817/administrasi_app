@@ -31,7 +31,7 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary">Cek Status</button>
-                        <a href="/pengajuan" class="btn btn-secondary">Kembali</a>
+                        <a href="/" class="btn btn-secondary">Kembali</a>
                     </form>
 
                     {{-- ERROR --}}

@@ -57,10 +57,10 @@
                             <label class="form-label">Jenis Surat</label>
                             <select class="form-select" name="jenis_surat" required>
                                 <option value="">-- Pilih --</option>
-                                <option value="Domisili">Domisili</option>
-                                <option value="Usaha">Usaha</option>
-                                <option value="Tidak Mampu">Tidak Mampu</option>
-                                <option value="Keterangan Lain">Keterangan Lain</option>
+                                <option value="Domisili">Surat Keterangan Kependudukan</option>
+                                <option value="Usaha">Surat Keterangan Usaha</option>
+                                <option value="Tidak Mampu">Surat Keterangan Tidak Mampu</option>
+                                <option value="Keterangan Lain">Surat Keterangan Lainnya</option>
                             </select>
                         </div>
 

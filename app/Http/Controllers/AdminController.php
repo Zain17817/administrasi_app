@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -36,6 +38,19 @@ public function updateStatus(Request $request, $id)
         ]);
 
     return redirect('/admin/detail/'.$id)->with('success', 'Status berhasil diubah');
+}
+
+use Illuminate\Support\Facades\Storage;
+
+public function download($file)
+{
+    $path = 'public/uploads/' . $file;
+
+    if (Storage::exists($path)) {
+        return Storage::download($path);
+    }
+
+    return back()->with('error', 'File tidak ditemukan');
 }
 }
 

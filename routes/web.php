@@ -35,3 +35,6 @@ Route::get('/logout', [AuthController::class, 'logout']);
 Route::get('/cek-status', function () {
     return view('cek-status');
 });
+
+Route::get('/admin/download/{file}', [AdminController::class, 'download'])
+    ->middleware('admin');
