@@ -37,7 +37,11 @@ CREATE TABLE `pengajuan` (
   `kk` varchar(255) NOT NULL,
   `status` enum('Menunggu','Diproses','Selesai') DEFAULT 'Menunggu',
   `tanggal` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+<<<<<<< HEAD
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+=======
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+>>>>>>> af9bbc9e36b2eae0fc97d1836c4959577fd3144b
 
 --
 -- Dumping data for table `pengajuan`

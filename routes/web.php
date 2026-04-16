@@ -17,8 +17,32 @@ Route::prefix('admin')->group(function () {
     Route::post('/login', [AdminController::class, 'login']);
     Route::post('/logout', [AdminController::class, 'logout'])->name('admin.logout');
 
+<<<<<<< HEAD
+use App\Http\Controllers\AdminController;
+
+Route::get('/admin', [AdminController::class, 'index']);
+Route::get('/admin/detail/{id}', [AdminController::class, 'detail'])->middleware('admin');
+Route::post('/admin/detail/{id}', [AdminController::class, 'updateStatus'])->middleware('admin');
+
+use App\Http\Controllers\AuthController;
+
+// login
+Route::get('/admin/login', [AuthController::class, 'showLogin']);
+Route::post('/admin/login', [AuthController::class, 'login']);
+
+// logout
+Route::get('/logout', [AuthController::class, 'logout']);
+
+Route::get('/cek-status', function () {
+    return view('cek-status');
+});
+
+Route::get('/admin/download/{file}', [AdminController::class, 'download'])
+    ->middleware('admin');
+=======
     Route::middleware('admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
         Route::patch('/pengajuan/{pengajuan}/status', [AdminController::class, 'updateStatus'])->name('admin.update-status');
     });
 });
+>>>>>>> af9bbc9e36b2eae0fc97d1836c4959577fd3144b
