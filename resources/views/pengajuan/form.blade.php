@@ -3,7 +3,7 @@
 @section('title', 'Pengajuan Surat Online')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-8 px-4">
+<div class=" bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-4 px-4">
     <div class="max-w-5xl mx-auto">
         {{-- Header dengan animasi --}}
         <div class="text-center mb-8 animate-fade-in">

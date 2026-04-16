@@ -8,25 +8,17 @@ use Illuminate\Support\Facades\Route;
 // Route::get('/, [PengajuanController::class, 'create'])->name('pengajuan.landing');
 Route::get('/pengajuan', [PengajuanController::class, 'create'])->name('pengajuan.form');
 Route::post('/pengajuan', [PengajuanController::class, 'store'])->name('pengajuan.store');
-
 Route::get('/cek-status', [PengajuanController::class, 'cekStatusForm'])->name('pengajuan.cek-status');
 Route::post('/cek-status', [PengajuanController::class, 'cekStatus'])->name('pengajuan.cek-status.proses');
 
-
-// =======================
-// ROUTE ADMIN
-// =======================
+// Route admin (dilindungi middleware 'admin')
 Route::prefix('admin')->group(function () {
-
-    // login logout
     Route::get('/login', [AdminController::class, 'loginForm'])->name('admin.login');
     Route::post('/login', [AdminController::class, 'login']);
     Route::post('/logout', [AdminController::class, 'logout'])->name('admin.logout');
 
     Route::middleware('admin')->group(function () {
-        Route::get('/', [AdminController::class, 'index'])->name('admin.dashboard');
-        Route::get('/detail/{id}', [AdminController::class, 'detail']);
-        Route::post('/detail/{id}', [AdminController::class, 'updateStatus']);
-        Route::get('/download/{file}', [AdminController::class, 'download']);
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+        Route::patch('/pengajuan/{pengajuan}/status', [AdminController::class, 'updateStatus'])->name('admin.update-status');
     });
 });
