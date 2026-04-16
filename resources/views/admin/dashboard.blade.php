@@ -27,6 +27,7 @@
                             <th class="py-2 px-3 border">No</th>
                             <th class="py-2 px-3 border">Nomor Pengajuan</th>
                             <th class="py-2 px-3 border">Nama</th>
+                            <th class="py-2 px-3 border">Nomor Handphone</th>
                             <th class="py-2 px-3 border">Jenis Surat</th>
                             <th class="py-2 px-3 border">Status</th>
                             <th class="py-2 px-3 border">Aksi</th>
@@ -38,6 +39,7 @@
                             <td class="py-2 px-3 border text-center">{{ $key+1 }}</td>
                             <td class="py-2 px-3 border">{{ $p->nomor_pengajuan }}</td>
                             <td class="py-2 px-3 border">{{ $p->nama }}</td>
+                            <td class="py-2 px-3 border">{{ $p->no_hp }}</td>
                             <td class="py-2 px-3 border">{{ $p->jenis_surat }}</td>
                             <td class="py-2 px-3 border">
                                 <span class="px-2 py-1 rounded text-sm 
@@ -59,6 +61,10 @@
                                         <option value="Ditolak" {{ $p->status == 'Ditolak' ? 'selected' : '' }}>Ditolak</option>
                                     </select>
                                     <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded text-sm">Update</button>
+                                     <a href="https://wa.me/{{ $p->no_hp }}" target="_blank"
+                                        class="inline-flex items-center justify-center md:justify-start gap-2 text-primary font-medium hover:underline">
+                                        Chat
+                                     </a>
                                 </form>
                             </td>
                         </tr>

@@ -60,12 +60,21 @@
                                 <i class="fab fa-whatsapp text-green-500 mr-2"></i>Nomor HP (WhatsApp) 
                                 <span class="text-red-500">*</span>
                             </label>
-                            <div class="relative">
-                                <input type="tel" name="no_hp" value="{{ old('no_hp') }}" 
-                                    class="w-full border border-gray-300 rounded-xl px-4 py-3 pl-11 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition @error('no_hp') border-red-500 @enderror" 
-                                    placeholder="08xxxxxxxxxx" required>
+                            <div class="relative flex items-center">
+                                <!-- Teks prefix +62 statis -->
+                                <span class="absolute left-3 text-gray-500 font-medium select-none">+62</span>
+                                
+                                <input type="tel" name="no_hp" id="no_hp" 
+                                    value="{{ old('no_hp') ? (Str::startsWith(old('no_hp'), '+62') ? substr(old('no_hp'), 3) : old('no_hp')) : '' }}"
+                                    class="w-full border border-gray-300 rounded-xl py-3 pl-12 pr-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition @error('no_hp') border-red-500 @enderror" 
+                                    placeholder="8123456789" 
+                                    inputmode="numeric"
+                                    autocomplete="off">
                             </div>
-                            @error('no_hp') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
+                            @error('no_hp') 
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p> 
+                            @else
+                            @enderror
                         </div>
                     </div>
 
@@ -204,6 +213,31 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sedang memproses...';
             btn.classList.add('opacity-70', 'cursor-not-allowed');
+        }
+    });
+
+     // Otomatis format nomor telepon saat form akan disubmit
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        const inputNoHp = document.getElementById('no_hp');
+
+        if (form && inputNoHp) {
+            form.addEventListener('submit', function(e) {
+                let rawValue = inputNoHp.value.trim();
+                // Hapus semua karakter non-digit
+                let digits = rawValue.replace(/\D/g, '');
+                if (digits === '') {
+                    // Biarkan kosong, biarkan validasi server yang menangani
+                    return;
+                }
+                // Jika diawali dengan 0, hapus 0 pertama (misal 0812 -> 812)
+                if (digits.startsWith('0')) {
+                    digits = digits.substring(1);
+                }
+                // Gabungkan dengan +62
+                const formatted = '+62' + digits;
+                inputNoHp.value = formatted;
+            });
         }
     });
 </script>
