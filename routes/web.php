@@ -5,7 +5,8 @@ use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 
 // Route publik
-Route::get('/', [PengajuanController::class, 'create'])->name('pengajuan.form');
+// Route::get('/, [PengajuanController::class, 'create'])->name('pengajuan.landing');
+Route::get('/pengajuan', [PengajuanController::class, 'create'])->name('pengajuan.form');
 Route::post('/pengajuan', [PengajuanController::class, 'store'])->name('pengajuan.store');
 Route::get('/cek-status', [PengajuanController::class, 'cekStatusForm'])->name('pengajuan.cek-status');
 Route::post('/cek-status', [PengajuanController::class, 'cekStatus'])->name('pengajuan.cek-status.proses');
