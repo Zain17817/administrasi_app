@@ -68,7 +68,7 @@
 
                 <!-- Link tambahan -->
                 <div class="mt-6 text-center">
-                    <a href="{{ url('/') }}" class="text-sm text-gray-500 hover:text-gray-700 transition">
+                    <a href="{{ url('/pengajuan') }}" class="text-sm text-gray-500 hover:text-gray-700 transition">
                         <i class="fas fa-arrow-left mr-1"></i> Kembali ke Halaman Utama
                     </a>
                 </div>
