@@ -6,73 +6,109 @@
     <title>Dashboard Admin | Desa Sejahtera</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Konsistensi transisi untuk semua interaksi */
+        .transition-custom {
+            transition: all 0.2s ease;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 py-10">
-    <div class="container mx-auto px-4 max-w-6xl">
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div class="bg-blue-700 text-white py-3 px-6 flex justify-between items-center">
-                <h2 class="text-xl font-semibold"><i class="fas fa-tachometer-alt mr-2"></i> Dashboard Admin</h2>
+<body class="bg-gradient-to-br from-gray-100 to-gray-200 py-8 px-4 sm:px-6 font-sans">
+    <div class="container mx-auto max-w-7xl">
+        <!-- Card Dashboard -->
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
+            <!-- Header dengan gaya konsisten -->
+            <div class="bg-gradient-to-r from-blue-700 to-indigo-700 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                    <i class="fas fa-tachometer-alt"></i> 
+                    <span>Dashboard Admin</span>
+                </h2>
                 <form action="{{ route('admin.logout') }}" method="POST">
                     @csrf
-                    <button type="submit" class="bg-red-600 hover:bg-red-700 px-4 py-1 rounded text-white"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl text-sm font-semibold shadow-md transition-custom flex items-center gap-2">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
                 </form>
             </div>
+
+            <!-- Notifikasi sukses dengan gaya konsisten -->
             @if(session('success'))
-                <div class="bg-green-100 text-green-800 p-3 m-4 rounded">{{ session('success') }}</div>
+                <div class="mx-6 mt-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-3 rounded-lg shadow-sm flex items-center gap-2">
+                    <i class="fas fa-check-circle text-green-500"></i>
+                    <span>{{ session('success') }}</span>
+                </div>
             @endif
-            <div class="overflow-x-auto p-4">
-                <table class="min-w-full bg-white border">
-                    <thead class="bg-gray-200">
-                        <tr>
-                            <th class="py-2 px-3 border">No</th>
-                            <th class="py-2 px-3 border">Nomor Pengajuan</th>
-                            <th class="py-2 px-3 border">Nama</th>
-                            <th class="py-2 px-3 border">Nomor Handphone</th>
-                            <th class="py-2 px-3 border">Jenis Surat</th>
-                            <th class="py-2 px-3 border">Status</th>
-                            <th class="py-2 px-3 border">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($pengajuans as $key => $p)
-                        <tr>
-                            <td class="py-2 px-3 border text-center">{{ $key+1 }}</td>
-                            <td class="py-2 px-3 border">{{ $p->nomor_pengajuan }}</td>
-                            <td class="py-2 px-3 border">{{ $p->nama }}</td>
-                            <td class="py-2 px-3 border">{{ $p->no_hp }}</td>
-                            <td class="py-2 px-3 border">{{ $p->jenis_surat }}</td>
-                            <td class="py-2 px-3 border">
-                                <span class="px-2 py-1 rounded text-sm 
-                                    @if($p->status == 'Pending') bg-yellow-200
-                                    @elseif($p->status == 'Diproses') bg-blue-200
-                                    @elseif($p->status == 'Selesai') bg-green-200
-                                    @else bg-red-200 @endif">
-                                    {{ $p->status }}
-                                </span>
-                            </td>
-                            <td class="py-2 px-3 border">
-                                <form action="{{ route('admin.update-status', $p) }}" method="POST" class="flex gap-2">
-                                    @csrf
-                                    @method('PATCH')
-                                    <select name="status" class="border rounded px-2 py-1 text-sm">
-                                        <option value="Pending" {{ $p->status == 'Pending' ? 'selected' : '' }}>Pending</option>
-                                        <option value="Diproses" {{ $p->status == 'Diproses' ? 'selected' : '' }}>Diproses</option>
-                                        <option value="Selesai" {{ $p->status == 'Selesai' ? 'selected' : '' }}>Selesai</option>
-                                        <option value="Ditolak" {{ $p->status == 'Ditolak' ? 'selected' : '' }}>Ditolak</option>
-                                    </select>
-                                    <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded text-sm">Update</button>
-                                     <a href="https://wa.me/{{ $p->no_hp }}" target="_blank"
-                                        class="inline-flex items-center justify-center md:justify-start gap-2 text-primary font-medium hover:underline">
-                                        Chat
-                                     </a>
-                                </form>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr><td colspan="6" class="text-center py-4">Belum ada data pengajuan.</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
+
+            <!-- Tabel dengan padding dan margin konsisten -->
+            <div class="p-4 md:p-6 overflow-x-auto">
+                <div class="inline-block min-w-full align-middle">
+                    <table class="min-w-full bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                        <thead class="bg-gray-100 border-b border-gray-200">
+                            <tr>
+                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700">No</th>
+                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700">Nomor Pengajuan</th>
+                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700">Nama</th>
+                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700">Nomor Handphone</th>
+                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700">Jenis Surat</th>
+                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700">Status</th>
+                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            @forelse($pengajuans as $key => $p)
+                            <tr class="hover:bg-gray-50 transition-custom">
+                                <td class="py-3 px-4 text-sm text-gray-800">{{ $key+1 }}</td>
+                                <td class="py-3 px-4 text-sm font-mono text-gray-700">{{ $p->nomor_pengajuan }}</td>
+                                <td class="py-3 px-4 text-sm font-medium text-gray-800">{{ $p->nama }}</td>
+                                <td class="py-3 px-4 text-sm text-gray-700">{{ $p->no_hp }}</td>
+                                <td class="py-3 px-4 text-sm text-gray-700">{{ $p->jenis_surat }}</td>
+                                <td class="py-3 px-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                        @if($p->status == 'Pending') bg-yellow-100 text-yellow-800
+                                        @elseif($p->status == 'Diproses') bg-blue-100 text-blue-800
+                                        @elseif($p->status == 'Selesai') bg-green-100 text-green-800
+                                        @else bg-red-100 text-red-800 @endif">
+                                        {{ $p->status }}
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <form action="{{ route('admin.update-status', $p) }}" method="POST" class="flex items-center gap-2">
+                                            @csrf
+                                            @method('PATCH')
+                                            <select name="status" class="border border-gray-300 rounded-lg px-2 py-1.5 text-sm bg-white focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-custom">
+                                                <option value="Pending" {{ $p->status == 'Pending' ? 'selected' : '' }}>Pending</option>
+                                                <option value="Diproses" {{ $p->status == 'Diproses' ? 'selected' : '' }}>Diproses</option>
+                                                <option value="Selesai" {{ $p->status == 'Selesai' ? 'selected' : '' }}>Selesai</option>
+                                                <option value="Ditolak" {{ $p->status == 'Ditolak' ? 'selected' : '' }}>Ditolak</option>
+                                            </select>
+                                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm transition-custom">
+                                                <i class="fas fa-sync-alt mr-1"></i> Update
+                                            </button>
+                                        </form>
+                                        <a href="https://wa.me/{{ $p->no_hp }}" target="_blank" 
+                                           class="inline-flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm transition-custom">
+                                            <i class="fab fa-whatsapp"></i> Chat
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="7" class="text-center py-8 text-gray-500 bg-gray-50">
+                                    <i class="fas fa-inbox text-3xl mb-2 block"></i>
+                                    Belum ada data pengajuan.
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Footer opsional dengan margin konsisten -->
+            <div class="border-t border-gray-200 px-6 py-3 bg-gray-50 text-right text-xs text-gray-500">
+                Total Pengajuan: {{ $pengajuans->count() ?? 0 }}
             </div>
         </div>
     </div>
