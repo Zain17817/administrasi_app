@@ -153,9 +153,9 @@
                 {{-- Tombol Aksi --}}
                 <div class="flex flex-wrap gap-3 justify-center mt-8">
                     @if($pengajuan->status == 'Selesai')
-                        <!-- <a href="#" class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-6 rounded-xl transition shadow-md">
+                        <a href="#" class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-6 rounded-xl transition shadow-md">
                             <i class="fas fa-download"></i> Download Surat
-                        </a> -->
+                        </a>
                     @endif
                     <a href="{{ route('pengajuan.cek-status') }}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-xl transition shadow-md">
                         <i class="fas fa-search"></i> Cek Nomor Lain
@@ -163,7 +163,14 @@
                     <a href="{{ route('pengajuan.form') }}" class="inline-flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2.5 px-6 rounded-xl transition shadow-md">
                         <i class="fas fa-plus"></i> Ajukan Surat Baru
                     </a>
+
+                    <div class="mt-6 text-center">
+                        <a href="{{ route('pengajuan.form') }}" class="inline-flex items-center gap-2 text-blue-700 hover:text-blue-900 transition font-medium">
+                            <i class="fas fa-arrow-left"></i> Kembali ke Form Pengajuan
+                        </a>
+                    </div> 
                 </div>
+                
             </div>
 
             {{-- Footer Informasi --}}

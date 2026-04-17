@@ -30,10 +30,29 @@ class AdminController extends Controller
         return back()->with('error', 'Username atau password salah.');
     }
 
-    public function dashboard()
+    // Perbaikan: tambahkan parameter Request $request dan filter bulan/tahun
+    public function dashboard(Request $request)
     {
-        $pengajuans = Pengajuan::orderBy('created_at', 'desc')->get();
-        return view('admin.dashboard', compact('pengajuans'));
+        // Ambil parameter filter, default bulan dan tahun saat ini
+        $bulan = $request->get('bulan', date('m'));
+        $tahun = $request->get('tahun', date('Y'));
+
+        // Filter data pengajuan berdasarkan bulan & tahun
+        $pengajuans = Pengajuan::whereMonth('created_at', $bulan)
+                            ->whereYear('created_at', $tahun)
+                            ->orderBy('created_at', 'desc')
+                            ->get();
+
+        // Hitung total & status counts
+        $totalBulanan = $pengajuans->count();
+        $statusCounts = [
+            'Pending' => $pengajuans->where('status', 'Pending')->count(),
+            'Diproses' => $pengajuans->where('status', 'Diproses')->count(),
+            'Selesai' => $pengajuans->where('status', 'Selesai')->count(),
+            'Ditolak' => $pengajuans->where('status', 'Ditolak')->count(),
+        ];
+
+        return view('admin.dashboard', compact('pengajuans', 'totalBulanan', 'statusCounts'));
     }
 
     public function updateStatus(Request $request, Pengajuan $pengajuan)
