@@ -119,7 +119,7 @@
                     </div>
 
                     <!-- Grafik Sederhana (Progress Bar) -->
-                    @if(($totalBulanan ?? 0) > 0)
+                    <!-- @if(($totalBulanan ?? 0) > 0)
                     <div class="bg-white rounded-xl p-4 shadow-sm mb-2">
                         <p class="text-sm font-semibold text-gray-700 mb-3">Grafik Pengajuan per Status</p>
                         <div class="space-y-2">
@@ -161,7 +161,7 @@
                             </div>
                         </div>
                     </div>
-                    @endif
+                    @endif -->
                 </div>
             </div>
 

@@ -3,8 +3,8 @@
 @section('title', 'Pengajuan Surat Online')
 
 @section('content')
-<div class=" bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-4 px-4">
-    <div class="max-w-5xl mx-auto">
+<div class="bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-4 px-4">
+    <div class="max-w-6xl mx-auto">
         {{-- Header dengan animasi --}}
         <div class="text-center mb-8 animate-fade-in">
             <div class="inline-flex items-center justify-center w-20 h-20 bg-blue-100 rounded-full shadow-md mb-3">
@@ -50,7 +50,8 @@
                             <div class="relative">
                                 <input type="text" name="nama" value="{{ old('nama') }}" 
                                     class="w-full border border-gray-300 rounded-xl px-4 py-3 pl-11 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition @error('nama') border-red-500 @enderror" 
-                                    placeholder="Masukkan Nama Lengkap !" required>
+                                    placeholder="Masukkan Nama Lengkap" required>
+                                <i class="fas fa-user absolute left-3 top-3.5 text-gray-400"></i>
                             </div>
                             @error('nama') <p class="text-red-500 text-sm mt-1 flex items-center gap-1"><i class="fas fa-exclamation-circle"></i>{{ $message }}</p> @enderror
                         </div>
@@ -61,19 +62,16 @@
                                 <span class="text-red-500">*</span>
                             </label>
                             <div class="relative flex items-center">
-                                <!-- Teks prefix +62 statis -->
                                 <span class="absolute left-3 text-gray-500 font-medium select-none">+62</span>
-                                
                                 <input type="tel" name="no_hp" id="no_hp" 
                                     value="{{ old('no_hp') ? (Str::startsWith(old('no_hp'), '+62') ? substr(old('no_hp'), 3) : old('no_hp')) : '' }}"
                                     class="w-full border border-gray-300 rounded-xl py-3 pl-12 pr-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition @error('no_hp') border-red-500 @enderror" 
                                     placeholder="8123456789" 
                                     inputmode="numeric"
-                                    autocomplete="off">
+                                    autocomplete="off" required>
                             </div>
                             @error('no_hp') 
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p> 
-                            @else
                             @enderror
                         </div>
                     </div>
@@ -88,6 +86,7 @@
                             <textarea name="alamat" rows="2" 
                                 class="w-full border border-gray-300 rounded-xl px-4 py-3 pl-11 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition @error('alamat') border-red-500 @enderror" 
                                 placeholder="RT/RW, Dusun, Desa Sejahtera..." required>{{ old('alamat') }}</textarea>
+                            <i class="fas fa-map-marker-alt absolute left-3 top-3.5 text-gray-400"></i>
                         </div>
                         @error('alamat') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
                     </div>
@@ -130,8 +129,8 @@
                         </div>
                     </div>
 
-                    {{-- Upload file dengan custom styling --}}
-                    <div class="grid md:grid-cols-2 gap-6">
+                    {{-- Upload file dengan grid 3 kolom --}}
+                    <div class="grid md:grid-cols-3 gap-6">
                         <div class="space-y-1">
                             <label class="block font-semibold text-gray-700">
                                 <i class="fas fa-id-card text-blue-600 mr-2"></i>Upload KTP (foto/scan) 
@@ -142,7 +141,7 @@
                                     class="w-full border border-gray-300 rounded-xl py-3 px-4 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition cursor-pointer @error('ktp') border-red-500 @enderror" 
                                     required>
                             </div>
-                            <p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle"></i> Maksimal 2MB, format JPG, PNG, PDF</p>
+                            <p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle"></i> Maks 2MB, JPG/PNG/PDF</p>
                             @error('ktp') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
                         </div>
 
@@ -156,8 +155,23 @@
                                     class="w-full border border-gray-300 rounded-xl py-3 px-4 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition cursor-pointer @error('kk') border-red-500 @enderror" 
                                     required>
                             </div>
-                            <p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle"></i> Maksimal 2MB, format JPG, PNG, PDF</p>
+                            <p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle"></i> Maks 2MB, JPG/PNG/PDF</p>
                             @error('kk') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
+                        </div>
+
+                        {{-- Surat Rekomendasi RT -- WAJIB --}}
+                        <div class="space-y-1">
+                            <label class="block font-semibold text-gray-700">
+                                <i class="fas fa-hand-peace text-orange-500 mr-2"></i>Surat Rekomendasi RT 
+                                <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <input type="file" name="surat_rt" accept="image/*,application/pdf" 
+                                    class="w-full border border-gray-300 rounded-xl py-3 px-4 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition cursor-pointer @error('surat_rt') border-red-500 @enderror" 
+                                    required>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle"></i> Maks 2MB, JPG/PNG/PDF (wajib diunggah)</p>
+                            @error('surat_rt') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
                         </div>
                     </div>
 
@@ -173,6 +187,10 @@
             <div class="bg-gray-50 py-4 px-6 text-center text-sm text-gray-600 border-t flex flex-wrap justify-center gap-4">
                 <a href="{{ route('pengajuan.cek-status') }}" class="inline-flex items-center gap-1 text-blue-700 hover:text-blue-900 transition">
                     <i class="fas fa-search"></i> Cek Status Pengajuan
+                </a>
+                <span class="text-gray-300 hidden md:inline">|</span>
+                <a href="{{ route('home') }}" class="inline-flex items-center gap-1 text-gray-500 hover:text-gray-700 transition">
+                    <i class="fas fa-home"></i> Kembali ke Beranda
                 </a>
                 <span class="text-gray-300 hidden md:inline">|</span>
                 <a href="{{ route('admin.login') }}" class="inline-flex items-center gap-1 text-blue-700 hover:text-blue-900 transition">
@@ -206,7 +224,7 @@
 </style>
 
 <script>
-    // Tambahkan loading state saat submit
+    // Loading state saat submit
     document.getElementById('pengajuanForm')?.addEventListener('submit', function(e) {
         const btn = document.getElementById('submitBtn');
         if (btn) {
@@ -216,7 +234,7 @@
         }
     });
 
-     // Otomatis format nomor telepon saat form akan disubmit
+    // Format nomor telepon otomatis menjadi +62
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.querySelector('form');
         const inputNoHp = document.getElementById('no_hp');
@@ -224,17 +242,11 @@
         if (form && inputNoHp) {
             form.addEventListener('submit', function(e) {
                 let rawValue = inputNoHp.value.trim();
-                // Hapus semua karakter non-digit
                 let digits = rawValue.replace(/\D/g, '');
-                if (digits === '') {
-                    // Biarkan kosong, biarkan validasi server yang menangani
-                    return;
-                }
-                // Jika diawali dengan 0, hapus 0 pertama (misal 0812 -> 812)
+                if (digits === '') return;
                 if (digits.startsWith('0')) {
                     digits = digits.substring(1);
                 }
-                // Gabungkan dengan +62
                 const formatted = '+62' + digits;
                 inputNoHp.value = formatted;
             });

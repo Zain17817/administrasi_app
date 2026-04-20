@@ -4,6 +4,10 @@ use App\Http\Controllers\PengajuanController;
 use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/', function () {
+    return view('home');
+})->name('home');
+
 // Route publik
 // Route::get('/, [PengajuanController::class, 'create'])->name('pengajuan.landing');
 Route::get('/pengajuan', [PengajuanController::class, 'create'])->name('pengajuan.form');

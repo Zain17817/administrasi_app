@@ -153,9 +153,7 @@
                 {{-- Tombol Aksi --}}
                 <div class="flex flex-wrap gap-3 justify-center mt-8">
                     @if($pengajuan->status == 'Selesai')
-                        <a href="#" class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-6 rounded-xl transition shadow-md">
-                            <i class="fas fa-download"></i> Download Surat
-                        </a>
+                       
                     @endif
                     <a href="{{ route('pengajuan.cek-status') }}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-xl transition shadow-md">
                         <i class="fas fa-search"></i> Cek Nomor Lain
