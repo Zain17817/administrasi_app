@@ -21,15 +21,17 @@ class PengajuanController extends Controller
             'nama'      => 'required|string|max:255',
             'no_hp'     => 'required|string|max:20',
             'alamat'    => 'required|string',
-            'jenis_surat' => 'required|in:Domisili,Usaha,Tidak Mampu,Keterangan Lain',
+            'jenis_surat' => 'required|in:Surat Domisili,Surat Usaha,Surat Keterangan Tidak Mampu,Surat Keterangan Lain',
             'keperluan' => 'required|string',
             'ktp'       => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'kk'        => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'surat_rt' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
         // Simpan file
         $fileKtp = $request->file('ktp')->store('ktp', 'public');
         $fileKk  = $request->file('kk')->store('kk', 'public');
+        $fileSuratRt = $request->file('surat_rt')->store('surat_rt', 'public');
 
         // Generate nomor unik
         $nomor = 'SRT-' . now()->format('YmdHis') . '-' . Str::random(4);
@@ -43,6 +45,7 @@ class PengajuanController extends Controller
             'keperluan'       => $validated['keperluan'],
             'file_ktp'        => $fileKtp,
             'file_kk'         => $fileKk,
+            'file_surat_rt'   => $fileSuratRt,
             'status'          => 'Pending',
         ]);
 

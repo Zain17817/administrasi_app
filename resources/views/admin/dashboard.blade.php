@@ -11,6 +11,28 @@
         .transition-custom {
             transition: all 0.2s ease;
         }
+        /* Modal styles */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+        .modal-container {
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        /* Sembunyikan scrollbar saat modal terbuka */
+        body.modal-open {
+            overflow: hidden;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-100 to-gray-200 py-8 px-4 sm:px-6 font-sans">
@@ -117,55 +139,10 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Grafik Sederhana (Progress Bar) -->
-                    <!-- @if(($totalBulanan ?? 0) > 0)
-                    <div class="bg-white rounded-xl p-4 shadow-sm mb-2">
-                        <p class="text-sm font-semibold text-gray-700 mb-3">Grafik Pengajuan per Status</p>
-                        <div class="space-y-2">
-                            <div>
-                                <div class="flex justify-between text-xs text-gray-600 mb-1">
-                                    <span>Pending</span>
-                                    <span>{{ round(($statusCounts['Pending'] ?? 0) / $totalBulanan * 100) }}%</span>
-                                </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                    <div class="bg-yellow-500 h-2.5 rounded-full" style="width: {{ ($statusCounts['Pending'] ?? 0) / $totalBulanan * 100 }}%"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex justify-between text-xs text-gray-600 mb-1">
-                                    <span>Diproses</span>
-                                    <span>{{ round(($statusCounts['Diproses'] ?? 0) / $totalBulanan * 100) }}%</span>
-                                </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                    <div class="bg-blue-500 h-2.5 rounded-full" style="width: {{ ($statusCounts['Diproses'] ?? 0) / $totalBulanan * 100 }}%"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex justify-between text-xs text-gray-600 mb-1">
-                                    <span>Selesai</span>
-                                    <span>{{ round(($statusCounts['Selesai'] ?? 0) / $totalBulanan * 100) }}%</span>
-                                </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                    <div class="bg-green-500 h-2.5 rounded-full" style="width: {{ ($statusCounts['Selesai'] ?? 0) / $totalBulanan * 100 }}%"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex justify-between text-xs text-gray-600 mb-1">
-                                    <span>Ditolak</span>
-                                    <span>{{ round(($statusCounts['Ditolak'] ?? 0) / $totalBulanan * 100) }}%</span>
-                                </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                    <div class="bg-red-500 h-2.5 rounded-full" style="width: {{ ($statusCounts['Ditolak'] ?? 0) / $totalBulanan * 100 }}%"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @endif -->
                 </div>
             </div>
 
-            <!-- Tabel Data Pengajuan (sudah terfilter bulan) -->
+            <!-- Tabel Data Pengajuan -->
             <div class="p-4 md:p-6 overflow-x-auto">
                 <div class="inline-block min-w-full align-middle">
                     <table class="min-w-full bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
@@ -182,12 +159,12 @@
                         </thead>
                         <tbody class="divide-y divide-gray-200">
                             @forelse($pengajuans as $key => $p)
-                            <tr class="hover:bg-gray-50 transition-custom">
+                            <tr class="hover:bg-gray-50 transition-custom" data-jenis-surat="{{ $p->jenis_surat }}">
                                 <td class="py-3 px-4 text-sm text-gray-800">{{ $key+1 }}</td>
                                 <td class="py-3 px-4 text-sm font-mono text-gray-700">{{ $p->nomor_pengajuan }}</td>
                                 <td class="py-3 px-4 text-sm font-medium text-gray-800">{{ $p->nama }}</td>
                                 <td class="py-3 px-4 text-sm text-gray-700">{{ $p->no_hp }}</td>
-                                <td class="py-3 px-4 text-sm text-gray-700">{{ $p->jenis_surat }}</td>
+                                <td class="py-3 px-4 text-sm text-gray-700 jenis-surat-cell">{{ $p->jenis_surat }}</td>
                                 <td class="py-3 px-4">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                         @if($p->status == 'Pending') bg-yellow-100 text-yellow-800
@@ -212,10 +189,13 @@
                                                 <i class="fas fa-sync-alt mr-1"></i> Update
                                             </button>
                                         </form>
-                                        <a href="https://wa.me/{{ $p->no_hp }}" target="_blank" 
-                                           class="inline-flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm transition-custom">
+                                        
+                                        <!-- Tombol Chat Otomatis dengan Modal -->
+                                        <button type="button" 
+                                                onclick="openChatModal('{{ $p->no_hp }}', '{{ $p->nama }}', '{{ $p->nomor_pengajuan }}', '{{ $p->jenis_surat }}', '{{ $p->status }}')"
+                                                class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm transition-custom inline-flex items-center gap-1">
                                             <i class="fab fa-whatsapp"></i> Chat
-                                        </a>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -238,5 +218,238 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Chat Otomatis -->
+    <div id="chatModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4 py-8">
+            <div class="modal-overlay fixed inset-0" onclick="closeChatModal()"></div>
+            
+            <div class="modal-container bg-white rounded-2xl shadow-2xl max-w-md w-full mx-auto relative z-10 transform transition-all">
+                <div class="bg-gradient-to-r from-green-600 to-green-500 px-6 py-4 rounded-t-2xl flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <i class="fab fa-whatsapp text-white text-2xl"></i>
+                        <h3 class="text-white font-bold text-lg">Chat via WhatsApp</h3>
+                    </div>
+                    <button onclick="closeChatModal()" class="text-white hover:text-gray-200 transition">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div class="p-6">
+                    <!-- Informasi Penerima -->
+                    <div class="bg-gray-50 rounded-xl p-4 mb-5">
+                        <div class="flex items-center gap-3 mb-2">
+                            <i class="fas fa-user-circle text-green-600 text-2xl"></i>
+                            <div>
+                                <p class="text-xs text-gray-500">Penerima</p>
+                                <p class="font-semibold text-gray-800" id="penerimaNama">-</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-phone-alt text-green-600"></i>
+                            <div>
+                                <p class="text-xs text-gray-500">Nomor WhatsApp</p>
+                                <p class="font-mono text-sm text-gray-700" id="penerimaNoHp">-</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 mt-2">
+                            <i class="fas fa-file-alt text-blue-500"></i>
+                            <div>
+                                <p class="text-xs text-gray-500">Jenis Surat</p>
+                                <p class="text-sm text-gray-700" id="penerimaJenisSurat">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Template Pesan -->
+                    <label class="block font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-comment-dots text-green-500 mr-2"></i>Template Pesan
+                    </label>
+                    <select id="templatePesan" class="w-full border border-gray-300 rounded-xl px-4 py-2 mb-4 focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                        <option value="default">📝 Pilih template pesan...</option>
+                        <option value="konfirmasi">✅ Konfirmasi Pengajuan</option>
+                        <option value="diproses">⚙️ Pengajuan Diproses</option>
+                        <option value="selesai">🎉 Pengajuan Selesai</option>
+                        <option value="ditolak">❌ Pengajuan Ditolak</option>
+                        <option value="verifikasi">📋 Verifikasi Berkas</option>
+                        <option value="custom">✏️ Custom / Tulis Sendiri</option>
+                    </select>
+
+                    <!-- Textarea Pesan -->
+                    <textarea id="pesanText" rows="8" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="Tulis pesan Anda di sini..."></textarea>
+
+                    <!-- Informasi Template -->
+                    <div id="templateInfo" class="mt-2 text-xs text-gray-500 hidden">
+                        <i class="fas fa-info-circle"></i> 
+                        <!-- <span>Gunakan {nama}, {nomor_pengajuan}, {jenis_surat} untuk variabel otomatis</span> -->
+                    </div>
+
+                    <!-- Tombol Kirim -->
+                    <div class="flex gap-3 mt-6">
+                        <a id="kirimWaLink" href="#" target="_blank" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 rounded-xl transition text-center flex items-center justify-center gap-2">
+                            <i class="fab fa-whatsapp"></i> Kirim ke WhatsApp
+                        </a>
+                        <button onclick="closeChatModal()" class="px-4 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-xl transition">
+                            Batal
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentData = {
+            no_hp: '',
+            nama: '',
+            nomor_pengajuan: '',
+            jenis_surat: '',
+            status: ''
+        };
+
+        function openChatModal(no_hp, nama, nomor_pengajuan, jenis_surat, status) {
+            currentData = {
+                no_hp: no_hp,
+                nama: nama,
+                nomor_pengajuan: nomor_pengajuan,
+                jenis_surat: jenis_surat,
+                status: status
+            };
+            
+            document.getElementById('penerimaNama').innerText = nama;
+            document.getElementById('penerimaNoHp').innerText = no_hp;
+            document.getElementById('penerimaJenisSurat').innerText = jenis_surat;
+            
+            // Reset template ke default
+            document.getElementById('templatePesan').value = 'default';
+            document.getElementById('pesanText').value = '';
+            document.getElementById('templateInfo').classList.add('hidden');
+            
+            document.getElementById('chatModal').classList.remove('hidden');
+            document.body.classList.add('modal-open');
+        }
+
+        function closeChatModal() {
+            document.getElementById('chatModal').classList.add('hidden');
+            document.body.classList.remove('modal-open');
+        }
+
+        // Template pesan
+        const templates = {
+            konfirmasi: `Halo {nama},
+
+Kami telah menerima pengajuan surat Anda dengan detail:
+📋 Nomor Pengajuan: {nomor_pengajuan}
+📄 Jenis Surat: {jenis_surat}
+📅 Tanggal Pengajuan: {{ date('d/m/Y H:i') }}
+
+Status saat ini: *PENDING*
+
+Mohon ditunggu proses verifikasi dari petugas desa.
+
+Terima kasih.
+
+*Desa Sejahtera*`,
+
+            diproses: `Halo {nama},
+
+Pengajuan surat Anda dengan nomor *{nomor_pengajuan}* sedang *DIPROSES* oleh petugas desa.
+
+Kami akan menginformasikan kembali setelah surat selesai.
+
+Terima kasih atas kesabarannya.
+
+*Desa Sejahtera*`,
+
+            selesai: `🎉 *Halo {nama}* 🎉
+
+Selamat! Pengajuan surat Anda dengan nomor *{nomor_pengajuan}* telah *SELESAI*.
+
+Surat dapat diambil di Kantor Desa Sejahtera atau akan kami kirimkan via email/WhatsApp.
+
+Terima kasih telah menggunakan layanan surat online Desa Sejahtera.
+
+*Desa Sejahtera*`,
+
+            ditolak: `Halo {nama},
+
+Mohon maaf, pengajuan surat Anda dengan nomor *{nomor_pengajuan}* *DITOLAK*.
+
+Alasan: [Isi alasan penolakan]
+
+Silakan lengkapi persyaratan yang kurang dan ajukan kembali.
+
+Terima kasih.
+
+*Desa Sejahtera*`,
+
+            verifikasi: `Halo {nama},
+
+Kami perlu melakukan verifikasi berkas untuk pengajuan surat *{nomor_pengajuan}*.
+
+Mohon segera menghubungi nomor 0812-3456-7890 untuk konfirmasi data.
+
+Terima kasih.
+
+*Desa Sejahtera*`
+        };
+
+        function replaceVariables(text, data) {
+            return text
+                .replace(/{nama}/g, data.nama)
+                .replace(/{nomor_pengajuan}/g, data.nomor_pengajuan)
+                .replace(/{jenis_surat}/g, data.jenis_surat);
+        }
+
+        document.getElementById('templatePesan').addEventListener('change', function() {
+            const templateValue = this.value;
+            const pesanTextarea = document.getElementById('pesanText');
+            const templateInfo = document.getElementById('templateInfo');
+            
+            if (templateValue !== 'default' && templates[templateValue]) {
+                let pesan = templates[templateValue];
+                pesan = replaceVariables(pesan, currentData);
+                pesanTextarea.value = pesan;
+                templateInfo.classList.remove('hidden');
+            } else if (templateValue === 'custom') {
+                pesanTextarea.value = '';
+                templateInfo.classList.remove('hidden');
+            } else {
+                pesanTextarea.value = '';
+                templateInfo.classList.add('hidden');
+            }
+            
+            // Update link WhatsApp
+            updateWhatsAppLink();
+        });
+
+        // Update link WhatsApp setiap kali pesan berubah
+        document.getElementById('pesanText').addEventListener('input', function() {
+            updateWhatsAppLink();
+        });
+
+        function updateWhatsAppLink() {
+            const noHp = currentData.no_hp;
+            const pesan = document.getElementById('pesanText').value;
+            
+            if (noHp && pesan) {
+                const encodedMessage = encodeURIComponent(pesan);
+                const waLink = `https://wa.me/${noHp}?text=${encodedMessage}`;
+                document.getElementById('kirimWaLink').href = waLink;
+            } else if (noHp) {
+                document.getElementById('kirimWaLink').href = `https://wa.me/${noHp}`;
+            }
+        }
+
+        // Klik di luar modal untuk menutup
+        document.querySelector('.modal-overlay')?.addEventListener('click', closeChatModal);
+
+        // Escape key untuk menutup modal
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('chatModal').classList.contains('hidden') === false) {
+                closeChatModal();
+            }
+        });
+    </script>
 </body>
 </html>

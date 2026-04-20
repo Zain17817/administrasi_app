@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('keperluan');
             $table->string('file_ktp');      // path file
             $table->string('file_kk');       // path file
+            $table->string('file_surat_rt'); // path file
             $table->enum('status', ['Pending', 'Diproses', 'Selesai', 'Ditolak'])->default('Pending');
             $table->timestamps();
         });

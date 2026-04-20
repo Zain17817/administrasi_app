@@ -37,6 +37,24 @@
                     </div>
                 @endif
 
+                {{-- Alert Error --}}
+                @if($errors->any())
+                    <div class="mb-6 bg-red-50 border-l-4 border-red-500 text-red-800 p-4 rounded-lg shadow-sm flex items-start gap-3">
+                        <i class="fas fa-exclamation-triangle text-red-500 text-xl mt-0.5"></i>
+                        <div class="flex-1">
+                            <strong>Terjadi kesalahan:</strong>
+                            <ul class="list-disc list-inside mt-1">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        <button type="button" class="text-red-600 hover:text-red-800" onclick="this.parentElement.remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                @endif
+
                 <form action="{{ route('pengajuan.store') }}" method="POST" enctype="multipart/form-data" id="pengajuanForm" class="space-y-6">
                     @csrf
 
@@ -72,6 +90,8 @@
                             </div>
                             @error('no_hp') 
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p> 
+                            @else
+                                <p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle"></i> Contoh: 8123456789 (tanpa 0 di depan)</p>
                             @enderror
                         </div>
                     </div>
@@ -103,10 +123,10 @@
                                     class="w-full border border-gray-300 rounded-xl px-4 py-3 pl-11 appearance-none bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition @error('jenis_surat') border-red-500 @enderror" 
                                     required>
                                     <option value="">-- Pilih Jenis Surat --</option>
-                                    <option value="Domisili" {{ old('jenis_surat') == 'Domisili' ? 'selected' : '' }}>Surat Domisili</option>
-                                    <option value="Usaha" {{ old('jenis_surat') == 'Usaha' ? 'selected' : '' }}>Surat Usaha</option>
-                                    <option value="Tidak Mampu" {{ old('jenis_surat') == 'Tidak Mampu' ? 'selected' : '' }}>Surat Tidak Mampu</option>
-                                    <option value="Keterangan Lain" {{ old('jenis_surat') == 'Keterangan Lain' ? 'selected' : '' }}>Keterangan Lain</option>
+                                    <option value="Domisili" {{ old('jenis_surat') == 'Domisili' ? 'selected' : '' }}>📄 Surat Domisili</option>
+                                    <option value="Usaha" {{ old('jenis_surat') == 'Usaha' ? 'selected' : '' }}>🏪 Surat Usaha</option>
+                                    <option value="Tidak Mampu" {{ old('jenis_surat') == 'Tidak Mampu' ? 'selected' : '' }}>📑 Surat KeteranganTidak Mampu</option>
+                                    <option value="Keterangan Lain" {{ old('jenis_surat') == 'Keterangan Lain' ? 'selected' : '' }}>📝 Surat Keterangan Lain</option>
                                 </select>
                                 <i class="fas fa-chevron-down absolute right-3 top-3.5 text-gray-400 pointer-events-none"></i>
                                 <i class="fas fa-tag absolute left-3 top-3.5 text-gray-400"></i>
@@ -141,7 +161,7 @@
                                     class="w-full border border-gray-300 rounded-xl py-3 px-4 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition cursor-pointer @error('ktp') border-red-500 @enderror" 
                                     required>
                             </div>
-                            <p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle"></i> Maks 2MB, JPG/PNG/PDF</p>
+                            <p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle"></i> Maks 2MB, format JPG, PNG, PDF</p>
                             @error('ktp') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
                         </div>
 
@@ -155,7 +175,7 @@
                                     class="w-full border border-gray-300 rounded-xl py-3 px-4 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition cursor-pointer @error('kk') border-red-500 @enderror" 
                                     required>
                             </div>
-                            <p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle"></i> Maks 2MB, JPG/PNG/PDF</p>
+                            <p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle"></i> Maks 2MB, format JPG, PNG, PDF</p>
                             @error('kk') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
                         </div>
 
@@ -170,8 +190,24 @@
                                     class="w-full border border-gray-300 rounded-xl py-3 px-4 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition cursor-pointer @error('surat_rt') border-red-500 @enderror" 
                                     required>
                             </div>
-                            <p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle"></i> Maks 2MB, JPG/PNG/PDF (wajib diunggah)</p>
+                            <p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle"></i> <strong>Wajib diunggah!</strong> Maks 2MB, JPG/PNG/PDF</p>
                             @error('surat_rt') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
+                        </div>
+                    </div>
+
+                    {{-- Informasi Tambahan Persyaratan --}}
+                    <div class="bg-blue-50 rounded-xl p-4 border border-blue-200">
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-info-circle text-blue-500 text-xl mt-0.5"></i>
+                            <div class="text-sm text-blue-800">
+                                <p class="font-semibold mb-1">📋 Persyaratan yang harus dilengkapi:</p>
+                                <ul class="list-disc list-inside space-y-0.5 text-blue-700">
+                                    <li>KTP (Kartu Tanda Penduduk)</li>
+                                    <li>KK (Kartu Keluarga)</li>
+                                    <li>Surat Rekomendasi dari Ketua RT setempat</li>
+                                </ul>
+                                <p class="mt-2 text-xs">*Semua file maksimal 2MB dan format JPG, PNG, atau PDF</p>
+                            </div>
                         </div>
                     </div>
 
@@ -240,6 +276,11 @@
         const inputNoHp = document.getElementById('no_hp');
 
         if (form && inputNoHp) {
+            // Validasi input nomor HP hanya angka
+            inputNoHp.addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+
             form.addEventListener('submit', function(e) {
                 let rawValue = inputNoHp.value.trim();
                 let digits = rawValue.replace(/\D/g, '');
