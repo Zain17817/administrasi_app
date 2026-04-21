@@ -123,10 +123,10 @@
                                     class="w-full border border-gray-300 rounded-xl px-4 py-3 pl-11 appearance-none bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition @error('jenis_surat') border-red-500 @enderror" 
                                     required>
                                     <option value="">-- Pilih Jenis Surat --</option>
-                                    <option value="Domisili" {{ old('jenis_surat') == 'Domisili' ? 'selected' : '' }}>📄 Surat Domisili</option>
-                                    <option value="Usaha" {{ old('jenis_surat') == 'Usaha' ? 'selected' : '' }}>🏪 Surat Usaha</option>
-                                    <option value="Tidak Mampu" {{ old('jenis_surat') == 'Tidak Mampu' ? 'selected' : '' }}>📑 Surat KeteranganTidak Mampu</option>
-                                    <option value="Keterangan Lain" {{ old('jenis_surat') == 'Keterangan Lain' ? 'selected' : '' }}>📝 Surat Keterangan Lain</option>
+                                    <option value="Surat Domisili" {{ old('jenis_surat') == 'Surat Domisili' ? 'selected' : '' }}>📄 Surat Domisili</option>
+                                    <option value="Surat Usaha" {{ old('jenis_surat') == 'Surat Usaha' ? 'selected' : '' }}>🏪 Surat Usaha</option>
+                                    <option value="Surat Keterangan Tidak Mampu" {{ old('jenis_surat') == 'Surat Keterangan Tidak Mampu' ? 'selected' : '' }}>📑 Surat Keterangan Tidak Mampu</option>
+                                    <option value="Surat Keterangan Lain" {{ old('jenis_surat') == 'Surat Keterangan Lain' ? 'selected' : '' }}>📝 Surat Keterangan Lain</option>
                                 </select>
                                 <i class="fas fa-chevron-down absolute right-3 top-3.5 text-gray-400 pointer-events-none"></i>
                                 <i class="fas fa-tag absolute left-3 top-3.5 text-gray-400"></i>
@@ -149,8 +149,8 @@
                         </div>
                     </div>
 
-                    {{-- Upload file dengan grid 3 kolom --}}
-                    <div class="grid md:grid-cols-3 gap-6">
+                    {{-- Upload file dengan grid 1 kolom --}}
+                    <div class="grid md:grid-cols-1 gap-6">
                         <div class="space-y-1">
                             <label class="block font-semibold text-gray-700">
                                 <i class="fas fa-id-card text-blue-600 mr-2"></i>Upload KTP (foto/scan) 
@@ -269,6 +269,13 @@
             btn.classList.add('opacity-70', 'cursor-not-allowed');
         }
     });
+
+    function previewImage(e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('preview');
+    preview.src = URL.createObjectURL(file);
+    preview.classList.remove('hidden');
+    }
 
     // Format nomor telepon otomatis menjadi +62
     document.addEventListener('DOMContentLoaded', function() {

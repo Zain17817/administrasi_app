@@ -11,7 +11,6 @@
         .transition-custom {
             transition: all 0.2s ease;
         }
-        /* Modal styles */
         .modal-overlay {
             background-color: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(4px);
@@ -29,9 +28,12 @@
                 transform: scale(1) translateY(0);
             }
         }
-        /* Sembunyikan scrollbar saat modal terbuka */
         body.modal-open {
             overflow: hidden;
+        }
+        .file-preview {
+            max-height: 150px;
+            object-fit: contain;
         }
     </style>
 </head>
@@ -153,55 +155,38 @@
                                 <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700">Nama</th>
                                 <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700">Nomor Handphone</th>
                                 <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700">Jenis Surat</th>
-                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700">Status</th>
                                 <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
                             @forelse($pengajuans as $key => $p)
-                            <tr class="hover:bg-gray-50 transition-custom" data-jenis-surat="{{ $p->jenis_surat }}">
+                            <tr class="hover:bg-gray-50 transition-custom" data-id="{{ $p->id }}">
                                 <td class="py-3 px-4 text-sm text-gray-800">{{ $key+1 }}</td>
                                 <td class="py-3 px-4 text-sm font-mono text-gray-700">{{ $p->nomor_pengajuan }}</td>
                                 <td class="py-3 px-4 text-sm font-medium text-gray-800">{{ $p->nama }}</td>
                                 <td class="py-3 px-4 text-sm text-gray-700">{{ $p->no_hp }}</td>
-                                <td class="py-3 px-4 text-sm text-gray-700 jenis-surat-cell">{{ $p->jenis_surat }}</td>
-                                <td class="py-3 px-4">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                        @if($p->status == 'Pending') bg-yellow-100 text-yellow-800
-                                        @elseif($p->status == 'Diproses') bg-blue-100 text-blue-800
-                                        @elseif($p->status == 'Selesai') bg-green-100 text-green-800
-                                        @else bg-red-100 text-red-800 @endif">
-                                        {{ $p->status }}
-                                    </span>
-                                </td>
+                                <td class="py-3 px-4 text-sm text-gray-700">{{ $p->jenis_surat }}</td>
                                 <td class="py-3 px-4">
                                     <div class="flex flex-wrap items-center gap-2">
-                                        <form action="{{ route('admin.update-status', $p) }}" method="POST" class="flex items-center gap-2">
-                                            @csrf
-                                            @method('PATCH')
-                                            <select name="status" class="border border-gray-300 rounded-lg px-2 py-1.5 text-sm bg-white focus:ring-2 focus:ring-blue-400">
-                                                <option value="Pending" {{ $p->status == 'Pending' ? 'selected' : '' }}>Pending</option>
-                                                <option value="Diproses" {{ $p->status == 'Diproses' ? 'selected' : '' }}>Diproses</option>
-                                                <option value="Selesai" {{ $p->status == 'Selesai' ? 'selected' : '' }}>Selesai</option>
-                                                <option value="Ditolak" {{ $p->status == 'Ditolak' ? 'selected' : '' }}>Ditolak</option>
-                                            </select>
-                                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm transition-custom">
-                                                <i class="fas fa-sync-alt mr-1"></i> Update
-                                            </button>
-                                        </form>
-                                        
-                                        <!-- Tombol Chat Otomatis dengan Modal -->
+                                        <!-- Tombol Detail -->
                                         <button type="button" 
-                                                onclick="openChatModal('{{ $p->no_hp }}', '{{ $p->nama }}', '{{ $p->nomor_pengajuan }}', '{{ $p->jenis_surat }}', '{{ $p->status }}')"
+                                                onclick="openDetailModal({{ $p->id }}, '{{ $p->nomor_pengajuan }}', '{{ addslashes($p->nama) }}', '{{ $p->jenis_surat }}', '{{ $p->status }}', '{{ $p->file_ktp }}', '{{ $p->file_kk }}', '{{ $p->file_surat_rt }}')"
+                                                class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm transition-custom inline-flex items-center gap-1">
+                                            <i class="fas fa-info-circle"></i> Detail
+                                        </button>
+                                        
+                                        <!-- Tombol Chat -->
+                                        <button type="button" 
+                                                onclick="openChatModal('{{ $p->no_hp }}', '{{ addslashes($p->nama) }}', '{{ $p->nomor_pengajuan }}', '{{ $p->jenis_surat }}', '{{ $p->status }}')"
                                                 class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm transition-custom inline-flex items-center gap-1">
                                             <i class="fab fa-whatsapp"></i> Chat
                                         </button>
                                     </div>
                                 </td>
-                            </tr>
+                             </tr>
                             @empty
                             <tr>
-                                <td colspan="7" class="text-center py-8 text-gray-500 bg-gray-50">
+                                <td colspan="6" class="text-center py-8 text-gray-500 bg-gray-50">
                                     <i class="fas fa-inbox text-3xl mb-2 block"></i>
                                     Tidak ada data pengajuan untuk bulan dan tahun yang dipilih.
                                 </td>
@@ -219,7 +204,112 @@
         </div>
     </div>
 
-    <!-- Modal Chat Otomatis -->
+    <!-- Modal Detail Pengajuan -->
+    <div id="detailModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4 py-8">
+            <div class="modal-overlay fixed inset-0" onclick="closeDetailModal()"></div>
+            
+            <div class="modal-container bg-white rounded-2xl shadow-2xl max-w-3xl w-full mx-auto relative z-10 transform transition-all">
+                <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-2xl flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-file-alt text-white text-xl"></i>
+                        <h3 class="text-white font-bold text-lg">Detail Pengajuan</h3>
+                    </div>
+                    <button onclick="closeDetailModal()" class="text-white hover:text-gray-200 transition">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div class="p-6">
+                    <!-- Informasi Pengajuan -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div class="bg-gray-50 rounded-xl p-3">
+                            <p class="text-xs text-gray-500">Nomor Pengajuan</p>
+                            <p class="font-mono font-semibold text-gray-800" id="detailNomor">-</p>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-3">
+                            <p class="text-xs text-gray-500">Nama Lengkap</p>
+                            <p class="font-semibold text-gray-800" id="detailNama">-</p>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-3">
+                            <p class="text-xs text-gray-500">Jenis Surat</p>
+                            <p class="text-gray-800" id="detailJenisSurat">-</p>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-3">
+                            <p class="text-xs text-gray-500">Status Saat Ini</p>
+                            <span id="detailStatusBadge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"></span>
+                        </div>
+                    </div>
+
+                    <!-- Form Update Status -->
+                    <div class="border-t border-gray-200 pt-5 mb-6">
+                        <h4 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                            <i class="fas fa-sync-alt text-blue-500"></i> Ubah Status
+                        </h4>
+                        <form id="updateStatusForm" method="POST" action="">
+                            @csrf
+                            @method('PATCH')
+                            <div class="flex flex-wrap gap-3 items-end">
+                                <div class="flex-1">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Status Baru</label>
+                                    <select name="status" class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-blue-400">
+                                        <option value="Pending">Pending</option>
+                                        <option value="Diproses">Diproses</option>
+                                        <option value="Selesai">Selesai</option>
+                                        <option value="Ditolak">Ditolak</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow transition-custom flex items-center gap-2">
+                                    <i class="fas fa-save"></i> Update Status
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Preview File Upload -->
+                    <div class="border-t border-gray-200 pt-5">
+                        <h4 class="font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                            <i class="fas fa-paperclip text-blue-500"></i> Dokumen Pendukung
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                            <!-- KTP -->
+                            <div class="bg-gray-50 rounded-xl p-3 text-center">
+                                <p class="text-sm font-medium text-gray-700 mb-2">Foto KTP</p>
+                                <div id="ktpPreview" class="flex justify-center">
+                                    <div class="w-full h-32 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400">
+                                        <i class="fas fa-image text-2xl"></i>
+                                    </div>
+                                </div>
+                                <a id="ktpLink" href="#" target="_blank" class="text-xs text-blue-600 mt-2 inline-block hover:underline">Lihat file</a>
+                            </div>
+                            <!-- KK -->
+                            <div class="bg-gray-50 rounded-xl p-3 text-center">
+                                <p class="text-sm font-medium text-gray-700 mb-2">Foto KK</p>
+                                <div id="kkPreview" class="flex justify-center">
+                                    <div class="w-full h-32 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400">
+                                        <i class="fas fa-image text-2xl"></i>
+                                    </div>
+                                </div>
+                                <a id="kkLink" href="#" target="_blank" class="text-xs text-blue-600 mt-2 inline-block hover:underline">Lihat file</a>
+                            </div>
+                            <!-- Surat Rekomendasi RT -->
+                            <div class="bg-gray-50 rounded-xl p-3 text-center">
+                                <p class="text-sm font-medium text-gray-700 mb-2">Surat Rekomendasi RT</p>
+                                <div id="suratRtPreview" class="flex justify-center">
+                                    <div class="w-full h-32 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400">
+                                        <i class="fas fa-file-pdf text-2xl"></i>
+                                    </div>
+                                </div>
+                                <a id="suratRtLink" href="#" target="_blank" class="text-xs text-blue-600 mt-2 inline-block hover:underline">Lihat file</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Chat Otomatis (sama seperti sebelumnya) -->
     <div id="chatModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
         <div class="flex items-center justify-center min-h-screen px-4 py-8">
             <div class="modal-overlay fixed inset-0" onclick="closeChatModal()"></div>
@@ -275,16 +365,8 @@
                         <option value="custom">✏️ Custom / Tulis Sendiri</option>
                     </select>
 
-                    <!-- Textarea Pesan -->
                     <textarea id="pesanText" rows="8" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="Tulis pesan Anda di sini..."></textarea>
 
-                    <!-- Informasi Template -->
-                    <div id="templateInfo" class="mt-2 text-xs text-gray-500 hidden">
-                        <i class="fas fa-info-circle"></i> 
-                        <!-- <span>Gunakan {nama}, {nomor_pengajuan}, {jenis_surat} untuk variabel otomatis</span> -->
-                    </div>
-
-                    <!-- Tombol Kirim -->
                     <div class="flex gap-3 mt-6">
                         <a id="kirimWaLink" href="#" target="_blank" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 rounded-xl transition text-center flex items-center justify-center gap-2">
                             <i class="fab fa-whatsapp"></i> Kirim ke WhatsApp
@@ -299,6 +381,81 @@
     </div>
 
     <script>
+        // ---------- Detail Modal ----------
+        let currentPengajuanId = null;
+
+        function openDetailModal(id, nomor, nama, jenisSurat, status, fileKtp, fileKk, fileSuratRt) {
+            currentPengajuanId = id;
+            document.getElementById('detailNomor').innerText = nomor;
+            document.getElementById('detailNama').innerText = nama;
+            document.getElementById('detailJenisSurat').innerText = jenisSurat;
+            
+            // Set status badge
+            const statusBadge = document.getElementById('detailStatusBadge');
+            let badgeClass = '';
+            if (status === 'Pending') badgeClass = 'bg-yellow-100 text-yellow-800';
+            else if (status === 'Diproses') badgeClass = 'bg-blue-100 text-blue-800';
+            else if (status === 'Selesai') badgeClass = 'bg-green-100 text-green-800';
+            else badgeClass = 'bg-red-100 text-red-800';
+            statusBadge.innerHTML = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badgeClass}">${status}</span>`;
+            
+            // Set form action update status
+            const form = document.getElementById('updateStatusForm');
+            form.action = "{{ url('admin/update-status') }}/" + id;
+            
+            // Set value dropdown status sesuai status saat ini
+            const statusSelect = form.querySelector('select[name="status"]');
+            if (statusSelect) {
+                statusSelect.value = status;
+            }
+            
+            // Preview files
+            const storageUrl = "/storage/";
+            const ktpFull = storageUrl + fileKtp;
+            const kkFull = storageUrl + fileKk;
+            const suratRtFull = storageUrl + fileSuratRt;
+            
+            function setPreview(containerId, linkId, fileUrl, isImage = true) {
+                const container = document.getElementById(containerId);
+                const link = document.getElementById(linkId);
+
+                if (!fileUrl) {
+                    container.innerHTML = `<div class="text-gray-400 text-sm">Tidak ada file</div>`;
+                    link.style.display = 'none';
+                    return;
+                }
+
+                link.href = fileUrl;
+                link.style.display = 'inline-block';
+
+                if (isImage) {
+                    container.innerHTML = `<img src="${fileUrl}" class="w-full h-32 object-cover rounded-lg">`;
+                } else {
+                    container.innerHTML = `<div class="w-full h-32 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">
+                        <i class="fas fa-file-pdf text-3xl"></i>
+                    </div>`;
+                }
+            }
+            
+            // Cek ekstensi file untuk menentukan apakah gambar atau pdf
+            const isImageKtp = /\.(jpeg|jpg|png|gif)$/i.test(fileKtp);
+            const isImageKk = /\.(jpeg|jpg|png|gif)$/i.test(fileKk);
+            const isImageSurat = /\.(jpeg|jpg|png|gif)$/i.test(fileSuratRt);
+            
+            setPreview('ktpPreview', 'ktpLink', ktpFull, isImageKtp);
+            setPreview('kkPreview', 'kkLink', kkFull, isImageKk);
+            setPreview('suratRtPreview', 'suratRtLink', suratRtFull, isImageSurat);
+            
+            document.getElementById('detailModal').classList.remove('hidden');
+            document.body.classList.add('modal-open');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+            document.body.classList.remove('modal-open');
+        }
+
+        // ---------- Chat Modal (sama seperti sebelumnya) ----------
         let currentData = {
             no_hp: '',
             nama: '',
@@ -320,10 +477,8 @@
             document.getElementById('penerimaNoHp').innerText = no_hp;
             document.getElementById('penerimaJenisSurat').innerText = jenis_surat;
             
-            // Reset template ke default
             document.getElementById('templatePesan').value = 'default';
             document.getElementById('pesanText').value = '';
-            document.getElementById('templateInfo').classList.add('hidden');
             
             document.getElementById('chatModal').classList.remove('hidden');
             document.body.classList.add('modal-open');
@@ -334,7 +489,6 @@
             document.body.classList.remove('modal-open');
         }
 
-        // Template pesan
         const templates = {
             konfirmasi: `Halo {nama},
 
@@ -401,52 +555,46 @@ Terima kasih.
                 .replace(/{jenis_surat}/g, data.jenis_surat);
         }
 
-        document.getElementById('templatePesan').addEventListener('change', function() {
+        document.getElementById('templatePesan')?.addEventListener('change', function() {
             const templateValue = this.value;
             const pesanTextarea = document.getElementById('pesanText');
-            const templateInfo = document.getElementById('templateInfo');
-            
             if (templateValue !== 'default' && templates[templateValue]) {
                 let pesan = templates[templateValue];
                 pesan = replaceVariables(pesan, currentData);
                 pesanTextarea.value = pesan;
-                templateInfo.classList.remove('hidden');
             } else if (templateValue === 'custom') {
                 pesanTextarea.value = '';
-                templateInfo.classList.remove('hidden');
             } else {
                 pesanTextarea.value = '';
-                templateInfo.classList.add('hidden');
             }
-            
-            // Update link WhatsApp
             updateWhatsAppLink();
         });
 
-        // Update link WhatsApp setiap kali pesan berubah
-        document.getElementById('pesanText').addEventListener('input', function() {
+        document.getElementById('pesanText')?.addEventListener('input', function() {
             updateWhatsAppLink();
         });
 
         function updateWhatsAppLink() {
             const noHp = currentData.no_hp;
             const pesan = document.getElementById('pesanText').value;
-            
             if (noHp && pesan) {
                 const encodedMessage = encodeURIComponent(pesan);
-                const waLink = `https://wa.me/${noHp}?text=${encodedMessage}`;
-                document.getElementById('kirimWaLink').href = waLink;
+                document.getElementById('kirimWaLink').href = `https://wa.me/${noHp}?text=${encodedMessage}`;
             } else if (noHp) {
                 document.getElementById('kirimWaLink').href = `https://wa.me/${noHp}`;
             }
         }
 
-        // Klik di luar modal untuk menutup
-        document.querySelector('.modal-overlay')?.addEventListener('click', closeChatModal);
+        document.querySelectorAll('.modal-overlay').forEach(el => {
+            el.addEventListener('click', function(e) {
+                closeDetailModal();
+                closeChatModal();
+            });
+        });
 
-        // Escape key untuk menutup modal
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && document.getElementById('chatModal').classList.contains('hidden') === false) {
+            if (e.key === 'Escape') {
+                closeDetailModal();
                 closeChatModal();
             }
         });

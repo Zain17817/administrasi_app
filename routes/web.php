@@ -15,6 +15,13 @@ Route::post('/pengajuan', [PengajuanController::class, 'store'])->name('pengajua
 Route::get('/cek-status', [PengajuanController::class, 'cekStatusForm'])->name('pengajuan.cek-status');
 Route::post('/cek-status', [PengajuanController::class, 'cekStatus'])->name('pengajuan.cek-status.proses');
 
+Route::get('/pengajuan', [PengajuanController::class, 'create'])->name('pengajuan.form');
+Route::post('/pengajuan', [PengajuanController::class, 'store'])->name('pengajuan.store');
+Route::get('/pengajuan/verifikasi', [PengajuanController::class, 'verifikasiForm'])->name('pengajuan.verifikasi');
+Route::post('/pengajuan/verifikasi', [PengajuanController::class, 'verifikasiProses'])->name('pengajuan.verifikasi.proses');
+Route::get('/cek-status', [PengajuanController::class, 'cekStatusForm'])->name('pengajuan.cek-status');
+Route::post('/cek-status', [PengajuanController::class, 'cekStatus'])->name('pengajuan.cek-status.proses');
+
 // Route admin (dilindungi middleware 'admin')
 Route::prefix('admin')->group(function () {
     Route::get('/login', [AdminController::class, 'loginForm'])->name('admin.login');
@@ -23,6 +30,6 @@ Route::prefix('admin')->group(function () {
 
     Route::middleware('admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-        Route::patch('/pengajuan/{pengajuan}/status', [AdminController::class, 'updateStatus'])->name('admin.update-status');
+        Route::patch('/update-status/{pengajuan}', [AdminController::class, 'updateStatus'])->name('admin.update-status');
     });
 });

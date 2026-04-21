@@ -15,6 +15,35 @@
             <div class="w-24 h-1 bg-green-500 mx-auto mt-3 rounded-full"></div>
         </div>
 
+{{-- Alert Success --}}
+                @if(session('success'))
+                    <div class="mb-6 bg-green-50 border-l-4 border-green-500 text-green-800 p-4 rounded-lg shadow-sm flex items-start gap-3">
+                        <i class="fas fa-check-circle text-green-500 text-xl mt-0.5"></i>
+                        <div class="flex-1">{!! session('success') !!}</div>
+                        <button type="button" class="text-green-600 hover:text-green-800" onclick="this.parentElement.remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                @endif
+
+                {{-- Alert Error --}}
+                @if($errors->any())
+                    <div class="mb-6 bg-red-50 border-l-4 border-red-500 text-red-800 p-4 rounded-lg shadow-sm flex items-start gap-3">
+                        <i class="fas fa-exclamation-triangle text-red-500 text-xl mt-0.5"></i>
+                        <div class="flex-1">
+                            <strong>Terjadi kesalahan:</strong>
+                            <ul class="list-disc list-inside mt-1">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        <button type="button" class="text-red-600 hover:text-red-800" onclick="this.parentElement.remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                @endif
+
         {{-- Card Form --}}
         <div class="bg-white rounded-3xl shadow-2xl overflow-hidden transition-all duration-300 hover:shadow-3xl">
             <div class="bg-gradient-to-r from-green-800 to-green-600 py-4 px-6">

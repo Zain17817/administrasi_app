@@ -18,6 +18,8 @@ class Pengajuan extends Model
         'keperluan',
         'file_ktp',
         'file_kk',
-        'status'
+        'file_surat_rt',
+        'status',
+        'verifikasi_wajah',
     ];
 }
