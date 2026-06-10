@@ -6,6 +6,8 @@ use App\Models\Pengajuan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\NotifPermintaanSuratMasuk;
 
 class PengajuanController extends Controller
 {
@@ -62,7 +64,7 @@ class PengajuanController extends Controller
     public function verifikasiProses(Request $request)
     {
         $request->validate([
-            'foto_selfie' => 'required|string' // base64 dari canvas
+            'foto_selfie' => 'required|string'
         ]);
 
         if (!Session::has('pengajuan_sementara')) {
@@ -71,13 +73,10 @@ class PengajuanController extends Controller
 
         $data = Session::get('pengajuan_sementara');
 
-        // Di sini nanti integrasi face recognition (simulasi selalu sukses)
-        // Contoh: bandingkan dengan foto KTP yang diupload
-
         // Generate nomor unik
         $nomor = $this->generateNomorPengajuan($data['jenis_surat']);
 
-        // Simpan ke database
+        // Simpan ke database (hilangkan field 'verifikasi_wajah' jika tidak ada di migration)
         $pengajuan = Pengajuan::create([
             'nomor_pengajuan' => $nomor,
             'nama'            => $data['nama'],
@@ -89,7 +88,6 @@ class PengajuanController extends Controller
             'file_kk'         => $data['file_kk'],
             'file_surat_rt'   => $data['file_surat_rt'],
             'status'          => 'Pending',
-            'verifikasi_wajah' => $request->foto_selfie, // Simpan base64 untuk referensi (opsional)
         ]);
 
         // Pindahkan file dari temp ke folder permanen
@@ -114,14 +112,22 @@ class PengajuanController extends Controller
         $fileName = 'selfie_' . $pengajuan->nomor_pengajuan . '.png';
         Storage::disk('public')->put('selfie/' . $fileName, base64_decode($imageData));
 
+        // Kirim notifikasi email ke admin desa
+        try {
+            $adminEmail = env('ADMIN_EMAIL', 'barospkl1234@gmail.com');
+            Notification::route('mail', $adminEmail)
+                ->notify(new NotifPermintaanSuratMasuk($data, $pengajuan->nomor_pengajuan));
+        } catch (\Exception $e) {
+            \Log::error('Gagal kirim email notifikasi: ' . $e->getMessage());
+        }
+
         // Hapus session
         Session::forget('pengajuan_sementara');
-
-        session()->flash('success', "Verifikasi berhasil! Pengajuan tersimpan.<br>Nomor Pengajuan: <strong>{$pengajuan->nomor_pengajuan}</strong>");
 
         return response()->json([
             'success' => true,
             'message' => "Verifikasi berhasil! Pengajuan tersimpan.<br>Nomor Pengajuan: <strong>{$pengajuan->nomor_pengajuan}</strong>",
+            'nomor_pengajuan' => $pengajuan->nomor_pengajuan,
             'redirect' => route('pengajuan.cek-status')
         ]);
     }
@@ -129,14 +135,20 @@ class PengajuanController extends Controller
     // Generate nomor pengajuan unik
     private function generateNomorPengajuan($jenisSurat)
     {
-        // Ambil singkatan jenis surat
+        // Ambil singkatan jenis surat (3 huruf)
         $prefix = match ($jenisSurat) {
-            'Surat Domisili' => 'DOM',
+            'Surat Domisili' => '',
             'Surat Usaha' => 'USA',
-            'Surat Keterangan Tidak Mampu' => 'SKTM',
-            default => 'SKL',
+            'Surat Keterangan Tidak Mampu' => '',
+            'Surat Keterangan Lain' => '',
+            default => '',
         };
-        return $prefix . $jenisSurat . now()->format('YmdHis') . '-' . strtoupper(substr(uniqid(), -5));
+        
+        // Format: PREFIX-YYYYMMDD-XXXX (XXXX = random 4 karakter)
+        $date = now()->format('Ymd');
+        
+        
+        return $prefix . '-' . $date ;
     }
 
     // Form cek status
